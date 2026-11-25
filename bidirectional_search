@@ -1,0 +1,71 @@
+from collections import deque
+
+graph = {}
+
+n = int(input("Enter number of edges: "))
+
+for i in range(n):
+    u, v = input("Enter edge: ").split()
+
+    graph.setdefault(u, []).append(v)
+    graph.setdefault(v, []).append(u)
+
+start = input("Enter source: ")
+goal = input("Enter goal: ")
+
+q1 = deque([start])
+q2 = deque([goal])
+
+p1 = {start: None}
+p2 = {goal: None}
+
+meeting = None
+
+while q1 and q2:
+    node = q1.popleft()
+
+    for v in graph.get(node, []):
+        if v not in p1:
+            p1[v] = node
+            q1.append(v)
+
+            if v in p2:
+                meeting = v
+                break
+
+    if meeting:
+        break
+
+    node = q2.popleft()
+
+    for v in graph.get(node, []):
+        if v not in p2:
+            p2[v] = node
+            q2.append(v)
+
+            if v in p1:
+                meeting = v
+                break
+
+    if meeting:
+        break
+
+if meeting:
+    path = []
+    node = meeting
+
+    while node is not None:
+        path.append(node)
+        node = p1[node]
+
+    path.reverse()
+
+    node = p2[meeting]
+
+    while node is not None:
+        path.append(node)
+        node = p2[node]
+
+    print("Path:", " -> ".join(path))
+else:
+    print("No path found")

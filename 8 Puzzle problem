@@ -1,0 +1,66 @@
+import heapq
+
+goal = (1, 2, 3, 4, 5, 6, 7, 8, 0)
+
+def heuristic(state):
+    return sum(1 for i in range(9)
+               if state[i] != 0 and state[i] != goal[i])
+
+def get_neighbors(state):
+    pos = state.index(0)
+    r, c = divmod(pos, 3)
+
+    moves = []
+
+    for dr, dc in [(-1,0), (1,0), (0,-1), (0,1)]:
+        nr, nc = r + dr, c + dc
+
+        if 0 <= nr < 3 and 0 <= nc < 3:
+            new_pos = nr * 3 + nc
+            s = list(state)
+
+            s[pos], s[new_pos] = s[new_pos], s[pos]
+            moves.append(tuple(s))
+
+    return moves
+
+start = tuple(map(int, input("Enter 9 numbers: ").split()))
+
+pq = [(heuristic(start), start)]
+visited = set()
+parent = {start: None}
+
+while pq:
+    h, current = heapq.heappop(pq)
+
+    if current in visited:
+        continue
+
+    visited.add(current)
+
+    if current == goal:
+        break
+
+    for neighbor in get_neighbors(current):
+        if neighbor not in visited and neighbor not in parent:
+            parent[neighbor] = current
+            heapq.heappush(pq, (heuristic(neighbor), neighbor))
+
+if current == goal:
+    path = []
+    node = goal
+
+    while node is not None:
+        path.append(node)
+        node = parent[node]
+
+    path.reverse()
+
+    print("Solution found!")
+    for state in path:
+        print(state[0:3])
+        print(state[3:6])
+        print(state[6:9])
+        print()
+else:
+    print("No solution found")
